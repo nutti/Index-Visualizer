@@ -38,8 +38,8 @@ This add-on's features are as follows.
 This add-on is introduced in some places.
 See the link below for further details.
 
-* [Blender Artist Thread]()
-* [Google+]()
+* [Blender Artist Thread](http://blenderartists.org/forum/showthread.php?376429-Add-on-Index-Visualizer)
+* [Google+](https://plus.google.com/100058529622539760372/posts/aGhoyLSxL2y)
 
 ## Change Log
 |Version|Release Date|Change Log|

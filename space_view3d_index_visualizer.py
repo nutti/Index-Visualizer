@@ -233,6 +233,10 @@ class IVOperator(bpy.types.Operator):
         else:
             return {"CANCELLED"}
 
+    @classmethod
+    def release_handle(self, context):
+        IVRenderer.handle_remove(self, context)
+
 
 # UI View
 class OBJECT_PT_IV(bpy.types.Panel):
@@ -310,6 +314,8 @@ def register():
 
 
 def unregister():
+    bpy.types.VIEW3D_OT_iv_op.release_handle(bpy.context)
+
     bpy.utils.unregister_module(__name__)
     for km, kmi in addon_keymaps:
         km.keymap_items.remove(kmi)

@@ -51,14 +51,6 @@ Rect = namedtuple('Rect', 'x0 y0 x1 y1')
 addon_keymaps = []
 
 
-# Properties used in this add-on.
-class IVProperties(bpy.types.PropertyGroup):
-    running = BoolProperty(
-        name="Is Running",
-        description="Is IV operation running now?",
-        default=False)
-
-
 def get_canvas(context, pos, ch_count, font_size):
     """Get canvas to be renderred index."""
     sc = context.scene
@@ -97,6 +89,10 @@ class IVRenderer(bpy.types.Operator):
                 IVRenderer.__handle, 'WINDOW')
             IVRenderer.__handle = None
     
+    @classmethod
+    def is_running(self):
+        return IVRenderer.__handle is not None
+
     @staticmethod
     def __render_data(context, data):
         for d in data:
@@ -219,14 +215,11 @@ class IVOperator(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     def invoke(self, context, event):
-        props = context.scene.iv_props
         if context.area.type == "VIEW_3D":
-            if props.running is False:
+            if IVRenderer.is_running() is False:
                 IVRenderer.handle_add(self, context)
-                props.running = True
             else:
                 IVRenderer.handle_remove(self, context)
-                props.running = False
             if context.area:
                 context.area.tag_redraw()
             return {"FINISHED"}
@@ -236,6 +229,10 @@ class IVOperator(bpy.types.Operator):
     @classmethod
     def release_handle(self, context):
         IVRenderer.handle_remove(self, context)
+
+    @classmethod
+    def is_running(self):
+        return IVRenderer.is_running()
 
 
 # UI View
@@ -247,8 +244,7 @@ class OBJECT_PT_IV(bpy.types.Panel):
     def draw(self, context):
         sc = context.scene
         layout = self.layout
-        props = context.scene.iv_props
-        if props.running is False:
+        if not IVOperator.is_running():
             layout.operator(IVOperator.bl_idname, text="Start", icon="PLAY")
         else:
             layout.operator(IVOperator.bl_idname, text="Stop", icon="PAUSE")
@@ -260,10 +256,6 @@ class OBJECT_PT_IV(bpy.types.Panel):
 
 def init_properties():
     sc = bpy.types.Scene
-    sc.iv_props = PointerProperty(
-        name="IV operation internal data",
-        description="IV operation internal data",
-        type=IVProperties)
     sc.iv_box_color = FloatVectorProperty(
         name="Box Color",
         description="Box color",
@@ -293,7 +285,6 @@ def clear_properties():
     del sc.iv_font_size
     del sc.iv_text_color
     del sc.iv_box_color
-    del sc.iv_props
 
 
 def register():

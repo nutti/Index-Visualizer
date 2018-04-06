@@ -51,14 +51,6 @@ Rect = namedtuple('Rect', 'x0 y0 x1 y1')
 addon_keymaps = []
 
 
-# Properties used in this add-on.
-class IVProperties(bpy.types.PropertyGroup):
-    running = BoolProperty(
-        name="Is Running",
-        description="Is IV operation running now?",
-        default=False)
-
-
 def get_canvas(context, pos, ch_count, font_size):
     """Get canvas to be renderred index."""
     sc = context.scene
@@ -97,6 +89,10 @@ class IVRenderer(bpy.types.Operator):
                 IVRenderer.__handle, 'WINDOW')
             IVRenderer.__handle = None
     
+    @classmethod
+    def is_running(self):
+        return IVRenderer.__handle is not None
+
     @staticmethod
     def __render_data(context, data):
         for d in data:
@@ -106,10 +102,8 @@ class IVRenderer(bpy.types.Operator):
     def __render_each_data(context, data):
         sc = context.scene
         # setup rendering region
-        for area in bpy.context.screen.areas:
-            if area.type == "VIEW_3D":
-                break
-        else:
+        area = context.area        
+        if area.type != "VIEW_3D":
             return
         for region in area.regions:
             if region.type == "WINDOW":
@@ -193,7 +187,7 @@ class IVRenderer(bpy.types.Operator):
         wm = context.window_manager
         sc = context.scene
 
-        if context.object.mode == "OBJECT":
+        if not IVRenderer.is_valid_context(context):
             return
 
         # get rendered object
@@ -211,6 +205,24 @@ class IVRenderer(bpy.types.Operator):
 
         IVRenderer.__render_data(context, rendered_data)
 
+    @staticmethod
+    def is_valid_context(context):
+
+        obj = context.object
+
+        if obj is None \
+                or obj.type != 'MESH' \
+                or context.object.mode != 'EDIT':
+            return False
+        
+        for space in context.area.spaces:
+            if space.type == 'VIEW_3D':
+                break
+        else:
+            return False
+
+        return True
+
 
 class IVOperator(bpy.types.Operator):
     bl_idname = "view3d.iv_op"
@@ -219,16 +231,14 @@ class IVOperator(bpy.types.Operator):
     bl_options = {"REGISTER", "UNDO"}
 
     def invoke(self, context, event):
-        props = context.scene.iv_props
         if context.area.type == "VIEW_3D":
-            if props.running is False:
+            if IVRenderer.is_running() is False:
                 IVRenderer.handle_add(self, context)
-                props.running = True
             else:
                 IVRenderer.handle_remove(self, context)
-                props.running = False
-            if context.area:
-                context.area.tag_redraw()
+            for area in context.screen.areas:
+                if area.type == context.area.type:
+                    area.tag_redraw()
             return {"FINISHED"}
         else:
             return {"CANCELLED"}
@@ -236,6 +246,14 @@ class IVOperator(bpy.types.Operator):
     @classmethod
     def release_handle(self, context):
         IVRenderer.handle_remove(self, context)
+
+    @classmethod
+    def is_running(self):
+        return IVRenderer.is_running()
+
+    @staticmethod
+    def is_valid_context(context):
+        return IVRenderer.is_valid_context(context)
 
 
 # UI View
@@ -247,8 +265,7 @@ class OBJECT_PT_IV(bpy.types.Panel):
     def draw(self, context):
         sc = context.scene
         layout = self.layout
-        props = context.scene.iv_props
-        if props.running is False:
+        if not IVOperator.is_running():
             layout.operator(IVOperator.bl_idname, text="Start", icon="PLAY")
         else:
             layout.operator(IVOperator.bl_idname, text="Stop", icon="PAUSE")
@@ -257,13 +274,13 @@ class OBJECT_PT_IV(bpy.types.Panel):
             layout.label(text="Size:")
             layout.prop(sc, "iv_font_size", text="Text")
 
+    @classmethod
+    def poll(cls, context):
+        return bpy.types.VIEW3D_OT_iv_op.is_valid_context(context)
+
 
 def init_properties():
     sc = bpy.types.Scene
-    sc.iv_props = PointerProperty(
-        name="IV operation internal data",
-        description="IV operation internal data",
-        type=IVProperties)
     sc.iv_box_color = FloatVectorProperty(
         name="Box Color",
         description="Box color",
@@ -293,7 +310,6 @@ def clear_properties():
     del sc.iv_font_size
     del sc.iv_text_color
     del sc.iv_box_color
-    del sc.iv_props
 
 
 def register():

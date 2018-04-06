@@ -102,10 +102,8 @@ class IVRenderer(bpy.types.Operator):
     def __render_each_data(context, data):
         sc = context.scene
         # setup rendering region
-        for area in bpy.context.screen.areas:
-            if area.type == "VIEW_3D":
-                break
-        else:
+        area = context.area        
+        if area.type != "VIEW_3D":
             return
         for region in area.regions:
             if region.type == "WINDOW":
@@ -220,8 +218,9 @@ class IVOperator(bpy.types.Operator):
                 IVRenderer.handle_add(self, context)
             else:
                 IVRenderer.handle_remove(self, context)
-            if context.area:
-                context.area.tag_redraw()
+            for area in context.screen.areas:
+                if area.type == context.area.type:
+                    area.tag_redraw()
             return {"FINISHED"}
         else:
             return {"CANCELLED"}

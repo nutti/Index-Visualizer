@@ -1,23 +1,5 @@
 # <pep8-80 compliant>
 
-# ##### BEGIN GPL LICENSE BLOCK #####
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License
-#  as published by the Free Software Foundation; either version 2
-#  of the License, or (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software Foundation,
-#  Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-#
-# ##### END GPL LICENSE BLOCK #####
-
 import bpy
 import bgl
 import blf
@@ -27,14 +9,14 @@ from bpy_extras import view3d_utils
 from bpy.props import *
 from collections import namedtuple
 
-__author__ = "Nutti <nutti.metro@gmail.com>"
+__author__ = "Nutti <nutti.metro@gmail.com>, tetti"
 __status__ = "Production"
 __version__ = "1.0"
 __date__ = "18 Jul 2015"
 
 bl_info = {
     "name": "Index Visualizer",
-    "author": "Nutti",
+    "author": "Nutti, tetti",
     "version": (1, 0),
     "blender": (2, 74, 0),
     "location": "View3D > Index Visualizer",
@@ -54,12 +36,12 @@ addon_keymaps = []
 def get_canvas(context, pos, ch_count, font_size):
     """Get canvas to be renderred index."""
     sc = context.scene
-    
+
     width = ch_count * font_size * 1.0
     height = font_size * 1.5
 
     center_x, center_y, len_x, len_y = pos.x, pos.y, width, height
-    
+
     x0 = int(center_x - len_x * 0.5)
     y0 = int(center_y - len_y * 0.5)
     x1 = int(center_x + len_x * 0.5)
@@ -69,26 +51,26 @@ def get_canvas(context, pos, ch_count, font_size):
 
 class IVRenderer(bpy.types.Operator):
     """Rendering index"""
-    
+
     bl_idname = "view3d.iv_renderer"
     bl_label = "Index renderer"
 
     __handle = None
     __timer = None
-    
+
     @staticmethod
     def handle_add(self, context):
         IVRenderer.__handle = bpy.types.SpaceView3D.draw_handler_add(
             IVRenderer.render_indices,
             (self, context), 'WINDOW', 'POST_PIXEL')
-    
+
     @staticmethod
     def handle_remove(self, context):
         if IVRenderer.__handle is not None:
             bpy.types.SpaceView3D.draw_handler_remove(
                 IVRenderer.__handle, 'WINDOW')
             IVRenderer.__handle = None
-    
+
     @classmethod
     def is_running(self):
         return IVRenderer.__handle is not None
@@ -97,12 +79,12 @@ class IVRenderer(bpy.types.Operator):
     def __render_data(context, data):
         for d in data:
             IVRenderer.__render_each_data(context, d)
-    
+
     @staticmethod
     def __render_each_data(context, data):
         sc = context.scene
         # setup rendering region
-        area = context.area        
+        area = context.area
         if area.type != "VIEW_3D":
             return
         for region in area.regions:
@@ -214,7 +196,7 @@ class IVRenderer(bpy.types.Operator):
                 or obj.type != 'MESH' \
                 or context.object.mode != 'EDIT':
             return False
-        
+
         for space in context.area.spaces:
             if space.type == 'VIEW_3D':
                 break
@@ -341,4 +323,3 @@ def unregister():
 
 if __name__ == "__main__":
     register()
-

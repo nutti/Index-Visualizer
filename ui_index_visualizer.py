@@ -13,14 +13,14 @@ from bpy_extras import view3d_utils
 from bpy.props import *
 from collections import namedtuple
 
-__author__ = "Nutti <nutti.metro@gmail.com>, tetti"
+__author__ = "Nutti <nutti.metro@gmail.com>, tetii"
 __status__ = "Production"
 __version__ = "2.0"
 __date__ = "14 Apr 2018"
 
 bl_info = {
     "name": "Index Visualizer",
-    "author": "Nutti, tetti",
+    "author": "Nutti, tetii",
     "version": (2, 0),
     "blender": (2, 74, 0),
     "location": "UI > Index Visualizer",

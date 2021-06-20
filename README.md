@@ -27,7 +27,7 @@ This add-on's features are as follows.
 1. Press key **N** to show properties
 2. See **Index Visualizer**
 3. Click **Start** or Press key **Ctrl + Alt + I**
-4. You can see indicies of selected dmesh's verts/edges/faces
+4. You can see indices of selected dmesh's verts/edges/faces
 5. *(optional)* You can change text/box color and font size from properties
 6. Click **Stop** or Press key **Ctrl + Alt + I**
 

@@ -37,7 +37,7 @@ Rect = namedtuple('Rect', 'x0 y0 x1 y1')
 
 
 def get_canvas(context, pos, ch_count, font_size):
-    """Get canvas to be renderred index."""
+    """Get canvas to be rendered index."""
     sc = context.scene
 
     width = ch_count * font_size * 1.0
@@ -548,7 +548,7 @@ class OBJECT_PT_IV(bpy.types.Panel):
 
 class IMAGE_PT_RUVI(bpy.types.Panel):
 
-    bl_label = "Visible UV Indecies"
+    bl_label = "Visible UV Indices"
     bl_space_type = "IMAGE_EDITOR"
     bl_region_type = "UI"
 
@@ -577,7 +577,7 @@ class IMAGE_PT_RUVI(bpy.types.Panel):
         return bpy.types.UV_OT_render_uv_index.is_valid_context(context)
 
 
-# Using addon_keymaps[], exeption error is thrown as follow
+# Using addon_keymaps[], exception error is thrown as follow
 # RuntimeError: Error: KeyMapItem 'FILE_OT_select' cannot be removed from
 # 'View3D Dolly Modal'
 def remove_keymap_item(keyconfigs_key, keymap_name, keymap_item_name):
